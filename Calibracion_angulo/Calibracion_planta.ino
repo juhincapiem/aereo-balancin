@@ -3,12 +3,14 @@
 #define PWM2 10 //Puerto para controlar el PWM2
 #define sensorInput A0 //Puerto de adquicion de datos del sensor de forma analoga
 
-int pwmDuty1 = 50; //DutyCycle [%] del PWM1
+int pwmDuty1 = 0; //DutyCycle [%] del PWM1
+int pwmDuty1bite ; //DutyCycle [Num] del PWM1
 int pwmDuty2 = 0; //DutyCycle [%] del PWM2
+int pwmDuty2bite ; //DutyCycle [Num] del PWM2
 int IntputSensor; //Dato en bytes de entra del Sensor 
 int actualAng; //Angulo actual sensado [°]
 int refAng = 90; //Angulo de referencia [°]
-long Ts = 1000; // Tiempo de muestreo 
+long Ts = 10; // Tiempo de muestreo 
 long previousMillis = 0;  // Para el ciclo de la función principal
 
 void setup() {
@@ -26,24 +28,32 @@ void loop() {
 
 void SensarAngulo(){ //Sensa el valor del angulo con los datos adquiridos de forma analoga
   IntputSensor = analogRead(sensorInput);
-  actualAng = map(IntputSensor, 0, 1023, 0, 360); //Transfoama el valor de los datos de bits a un valor númerico
+  actualAng = map(IntputSensor, 0, 1023, 0.0, 360.0); //Transfoama el valor de los datos de bits a un valor númerico
   if(actualAng >= 83){ //Calibración del cero de referencia
   actualAng = actualAng - 83;
   } else{
   actualAng = actualAng + 277;}
+  Serial.print("U:");
+  Serial.print(",");
+  Serial.print(pwmDuty1);
+  Serial.print(",");
+  Serial.print("%");
+  Serial.print(",");
   Serial.print("ValorMapeado:");
+  Serial.print(",");
   Serial.print(actualAng);
+  Serial.print(",");
   Serial.println("°");
   delay(1000); //Espera para siguente muestra
 }
 
 void Calibracion(){
 
-  unsigned long currentMillis = millis(); // Actualiza el tiempo vigente en el arduino
+    unsigned long currentMillis = millis(); // Actualiza el tiempo vigente en el arduino
    if (currentMillis - previousMillis >= Ts) {
-    
-     previousMillis = currentMillis;
-    analogWrite(PWM1, pwmDuty1); //Configura el % de PWM en el puerto del PWM1
+    previousMillis = currentMillis;
+    pwmDuty1bite = map(pwmDuty1, 0.0, 100.0, 0, 255);
+    analogWrite(PWM1, pwmDuty1bite); //Configura el % de PWM en el puerto del PWM1
     SensarAngulo();
   
   }
