@@ -5,9 +5,11 @@
 
 int pwmDuty1 = 0;
 int pwmDuty2 = 0;
-int IntputSensor = 0;
-int actualAng = 0;
-int refAng = 90;
+long IntputSensor = 0;
+long actualAng = 0;
+long refAng = 84;
+long tiempoAnterior = 0;
+long Ts = 10;
 
 void setup() {
   pinMode(sensorInput, INPUT);
@@ -24,12 +26,19 @@ void loop() {
 }
 
 void measureAng(){
-  IntputSensor = analogRead(sensorInput);
+  unsigned long tiempoReal = millis();
 
-  actualAng = (IntputSensor * 360)/ 1023;
-  Serial.println(IntputSensor);
-  Serial.println(actualAng);
-  delay(1000);
+  if (tiempoReal - tiempoAnterior >= Ts){ 
+    tiempoAnterior = tiempoReal;
+    IntputSensor = analogRead(sensorInput);
+    actualAng = (IntputSensor * 360)/1023;
+    //Serial.println(IntputSensor);
+    //Serial.println(actualAng);
+    long angle = actualAng - refAng;
+    //Serial.println(angle);
+    Serial.println(angle);
+
+  }
 }
 
 void Calibrazao(){
